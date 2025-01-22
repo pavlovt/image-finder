@@ -8,3 +8,9 @@ export type TFilterForm = {
 export type TPhoto = {
   link: string
 }
+
+export type TLoading = {
+  isLoading: boolean
+  isError?: boolean
+  errorMessage?: string
+}

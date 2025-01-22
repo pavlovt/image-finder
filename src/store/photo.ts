@@ -1,11 +1,15 @@
 import { createModel } from '@rematch/core'
-import { photoService, TFilterForm, TPhoto } from '../core'
+import { isError } from 'lodash-es'
+import { photoService, TFilterForm, TLoading, TPhoto } from '../core'
 import type { RootModel } from './index'
 
 type TUserPhoto = TFilterForm & TPhoto
-type TState = { data: TUserPhoto }
+type TState = { data: TUserPhoto } & TLoading
 
 const InitialState: TState = {
+  isLoading: false,
+  isError: false,
+  errorMessage: '',
   data: {
     firstName: '',
     lastName: '',
@@ -24,23 +28,46 @@ const photo = createModel<RootModel>()({
         data: payload,
       }
     },
+    setLoadingState(state, payload: TLoading) {
+      return {
+        ...state,
+        ...payload,
+      }
+    },
   },
   effects: (dispatch: any) => ({
     async search(data: TFilterForm) {
       try {
-        const response: { results: { slug: string; links: { download: string } }[] } = await photoService.search(
-          data.topic,
-        )
+        dispatch({
+          type: 'photo/setLoadingState',
+          payload: {
+            isLoading: true,
+          },
+        })
+        const response: { slug: string; urls: { small: string } } = await photoService.random(data.topic)
+        dispatch({
+          type: 'photo/setLoadingState',
+          payload: {
+            isLoading: false,
+          },
+        })
 
         dispatch({
           type: 'photo/setUserPhoto',
           payload: {
             ...data,
-            link: response.results[0]?.links.download,
+            link: response.urls.small,
           },
         })
       } catch (error) {
-        console.log(error)
+        dispatch({
+          type: 'photo/setLoadingState',
+          payload: {
+            isLoading: false,
+            isError: true,
+            errorMessage: isError(error) ? error.message : 'An error occurred',
+          },
+        })
       }
     },
   }),

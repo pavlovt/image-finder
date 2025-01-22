@@ -9,7 +9,11 @@ class PhotoService {
   }
 
   get(id: string) {
-    return conf.baseUrl + conf.apis.photo + id + auth // api.get(conf.apis.photo + id + auth)
+    return api.get(conf.apis.photo + id + auth)
+  }
+
+  random(topic: string) {
+    return api.get(conf.apis.random + topic + auth)
   }
 }
 

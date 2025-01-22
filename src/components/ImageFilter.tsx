@@ -17,6 +17,7 @@ export default function ImageFilter({ filter }: TProps) {
     formState: { errors },
   } = useForm<TFilterForm>()
   const onSubmit: SubmitHandler<TFilterForm> = (data: TFilterForm) => filter(data)
+  const errorClass = ''
 
   watch(['topic'])
   const vals = getValues()
@@ -25,10 +26,23 @@ export default function ImageFilter({ filter }: TProps) {
   const required = (field: fields) => {
     let res = <span className="text-xs">&nbsp;</span>
     if (errors[field]) {
-      res = <span className="text-xs text-red-500">This field is required</span>
+      res = (
+        <span className="text-xs text-red-500" aria-invalid="true" aria-errormessage="This field is required">
+          This field is required
+        </span>
+      )
     }
 
     return res
+  }
+
+  const errorState = (field: fields) => {
+    let res
+    if (errors[field]) {
+      res = 'failure'
+    }
+
+    return res ? { color: res } : {}
   }
 
   return (
@@ -36,12 +50,15 @@ export default function ImageFilter({ filter }: TProps) {
       <div>
         <Label className="mb-3" htmlFor="firstName" value="Your first name" />
         <TextInput
+          autoFocus
           id="firstName"
           placeholder="Enter your first name"
           data-testid="first-name-input"
+          {...errorState('firstName')}
           {...register('firstName', { required: true })}
         />
         {required('firstName')}
+        {errorClass}
       </div>
       <div>
         <Label className="mb-3" htmlFor="lastName" value="Your last name" />
@@ -49,13 +66,18 @@ export default function ImageFilter({ filter }: TProps) {
           id="lastName"
           placeholder="Enter your last name"
           data-testid="last-name-input"
+          {...errorState('lastName')}
           {...register('lastName', { required: true })}
         />
         {required('lastName')}
       </div>
       <div>
         <Label className="mb-3" htmlFor="topic" value="Select a topic" />
-        <Select id="topic" data-testid="topic-select" {...register('topic', { required: true })}>
+        <Select
+          id="topic"
+          data-testid="topic-select"
+          {...errorState('topic')}
+          {...register('topic', { required: true })}>
           <option value="">Select a topic</option>
           {topicOptions.map(topic => (
             <option key={topic} value={topic}>
@@ -72,6 +94,7 @@ export default function ImageFilter({ filter }: TProps) {
             id="other"
             placeholder="Enter your topic"
             data-testid="other-input"
+            {...errorState('other')}
             {...register('other', { required: vals.topic === 'Other' })}
           />
           {required('other')}
