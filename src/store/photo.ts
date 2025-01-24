@@ -44,7 +44,8 @@ const photo = createModel<RootModel>()({
             isLoading: true,
           },
         })
-        const response: { slug: string; urls: { small: string } } = await photoService.random(data.topic)
+        const topic = data.topic === 'Other' && data.other ? data.other : data.topic
+        const response: { slug: string; urls: { small: string } } = await photoService.random(topic)
         dispatch({
           type: 'photo/setLoadingState',
           payload: {

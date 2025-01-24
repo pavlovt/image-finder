@@ -7,9 +7,18 @@ test.beforeEach(async ({ page }) => {
 })
 
 test('has title', async ({ page }) => {
-  await expect(page).toHaveTitle(/Home/)
+  await expect(page).toHaveTitle(/Image Finder/)
 })
 
 test('search for a title', async ({ page }) => {
-  await expect(page.getByText('Dedicated to provide')).toBeVisible()
+  await expect(page.getByText('Image Finder')).toBeVisible()
+})
+
+test('fill the filter form', async ({ page }) => {
+  await page.getByTestId('first-name-input').fill('John')
+  await page.getByTestId('last-name-input').fill('Smith')
+  await page.getByTestId('topic-select').fill('Cars')
+  await page.getByTestId('submit-button').click()
+
+  await expect(page.getByText('Please make your choice')).toBeVisible()
 })
